@@ -488,7 +488,26 @@
         }
 
         .bride-groom {
-            margin: 1.5rem 0;
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .person-card {
+            margin-bottom: 25px;
+        }
+
+        .couple-photo {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #d4af37;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
 
         .name-large {
@@ -796,16 +815,52 @@
         <div class="salam-wrapper">
             <div class="arabic">بسم الله الرحمن الرحيم</div>
             <p>Assalamu'alaikum Warahmatullahi Wabarakatuh</p>
-            <div class="guest-name" id="guestNameDisplay">Kepada Yth. Bapak/Ibu/Saudara(i)</div>
-            <div class="parent-names">
-                Dengan memohon rahmat Allah SWT, kami mengundang ke acara pernikahan putra-putri kami:
+
+            <div class="guest-name" id="guestNameDisplay">
+                Kepada Yth. Bapak/Ibu/Saudara(i)
             </div>
+
+            <div class="parent-names">
+                Dengan memohon rahmat Allah SWT, kami mengundang ke acara
+                pernikahan putra-putri kami:
+            </div>
+
             <div class="bride-groom">
-                <div class="name-large">Muhammad Taufiq Ihsanul., S.KM</div>
-                <div class="title-small">Putra dari Bapak Muhammad Safei., S.Sos & Ibu Kartini</div>
-                <div class="heart-symbol">♡ & ♡</div>
-                <div class="name-large">Nur Annisa Pratiwi Haerul., S.M</div>
-                <div class="title-small">Putri dari Bapak Haerul & Ibu</div>
+
+                <!-- Groom -->
+                <div class="person-card">
+                    <img src="https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Muhammad Taufiq Ihsanul"
+                        onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face'"
+                        class="couple-photo">
+
+                    <div class="name-large">
+                        Muhammad Taufiq Ihsanul, S.K.M.
+                    </div>
+
+                    <div class="title-small">
+                        Putra sulung dari Bapak Muhammad Safei., S.Sos
+                        & Ibu Kartini
+                    </div>
+                </div>
+
+                <!-- Bride -->
+                <div class="person-card">
+                    <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=600"
+                        alt="Nur Annisa Pratiwi Haerul"
+                        onerror="this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face'"
+                        class="couple-photo">
+
+                    <div class="name-large">
+                        Nur Annisa Pratiwi Haerul., S.M
+                    </div>
+
+                    <div class="title-small">
+                        Putri bungsu dari AKBP (Purn) Haerul Amal
+                        & Ibu Hj. Husni Amin
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -954,8 +1009,8 @@
             function initAudio() {
                 if (audio) return;
                 audio = new Audio(
-  `https://ikramfauzan.github.io/testing-invited/raisa.mp3?v=${Date.now()}`
-);
+                    `https://ikramfauzan.github.io/testing-invited/raisa.mp3?v=${Date.now()}`
+                );
                 audio.loop = true;
                 audio.volume = 0.35;
             }
