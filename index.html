@@ -55,18 +55,24 @@
     <style>
         html, body {
             height: 100%;
+            height: 100svh;
+            height: 100dvh;
             margin: 0;
             padding: 0;
             background-color: #0c0a09;
             color: #292524;
             overflow: hidden;
+            overscroll-behavior: none;
             user-select: auto;
+            -webkit-text-size-adjust: 100%;
         }
 
-        /* Swiper Container */
+        /* Swiper Container — pakai dvh agar pas di Safari iOS (address bar) */
         .main-swiper {
             width: 100vw;
             height: 100vh;
+            height: 100svh;
+            height: 100dvh;
             position: fixed;
             top: 0;
             left: 0;
@@ -74,15 +80,33 @@
 
         .main-slide {
             height: 100vh;
+            height: 100svh;
+            height: 100dvh;
             width: 100vw;
             position: relative;
             overflow-y: auto;
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            /* PENTING iOS: flex-start + margin auto (bukan center) agar */
+            /* konten atas tidak kepotong saat overflow di layar kecil */
+            justify-content: flex-start;
             align-items: center;
+            padding-top: 76px;
+            padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+            box-sizing: border-box;
+        }
+
+        /* Anak langsung jadi penengah yang aman saat overflow */
+        .main-slide > .relative.z-10 {
+            margin-top: auto;
+            margin-bottom: auto;
+            flex-shrink: 0;
+            width: 100%;
         }
 
         /* Custom Scrollbar for inner slide */
@@ -372,6 +396,98 @@
                 height: 440px;
             }
         }
+
+        /* ============================================================== */
+        /* OPTIMASI iPHONE / LAYAR KECIL: ANTI-KEPOTONG & ANTI-LAG */
+        /* ============================================================== */
+        @keyframes wordRevealMobile {
+            0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes kenBurnsMobile {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.05) translate(-1%, -1%); }
+        }
+        @media (max-width: 640px) {
+            /* Kurangi beban GPU: matikan efek termahal di HP */
+            .ken-burns, .ken-burns-alt { animation: kenBurnsMobile 38s ease-in-out infinite alternate; }
+            .shimmer-infinite::after { display: none; }
+            .live-glow { animation: none; }
+            .live-spin-slow { animation: none; }
+            .live-breathe { animation: none; }
+            /* Kata per kata tanpa blur (blur sangat berat di iOS) */
+            .word-split .word,
+            .couple-word .word,
+            .acara-word .word { filter: none; }
+            .anim-active .word-split .word,
+            .anim-active .couple-word .word,
+            .anim-active .acara-word .word { animation-name: wordRevealMobile; animation-duration: 0.45s; }
+            /* Glass lebih ringan */
+            .glass-panel {
+                background: rgba(12, 10, 9, 0.78);
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                border: 1px solid rgba(244, 210, 127, 0.38);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            }
+            /* will-change massal = memory pressure di iOS, matikan di HP */
+            .stagger-item,
+            .word-split .word,
+            .couple-word .word,
+            .acara-word .word { will-change: auto; }
+            /* Galeri lebih ramping agar muat di 390px */
+            .gallery-swiper .swiper-slide { width: 210px; height: 300px; border-radius: 20px; }
+            /* Foto mempelai lebih kecil agar card muat tanpa scroll panjang */
+            /* (hanya halaman mempelai, via data-slide-index="2") */
+            .main-slide[data-slide-index="2"] .photo-card-tilt .relative.w-40 { width: 7.5rem; height: 10rem; }
+            /* Countdown lebih rapat */
+            .main-slide[data-slide-index="3"] .grid.grid-cols-4 { gap: 0.4rem; }
+            /* Kurangi jarak animasi masuk agar terasa ringan */
+            .stagger-item { transform: translateY(22px) scale(0.96); }
+        }
+        /* HP sangat kecil (iPhone SE / di bawah iPhone 13): paksa 1 kolom */
+        @media (max-width: 380px) {
+            .main-slide { padding-top: 70px; }
+            .gallery-swiper .swiper-slide { width: 185px; height: 270px; }
+        }
+        /* Hormati notch / Dynamic Island & home indicator */
+        nav.fixed.bottom-4 { bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+        .fixed.top-5 { top: calc(1.25rem + env(safe-area-inset-top, 0px)); }
+
+        /* ============================================================== */
+        /* ANTI-FRAME-DROP SAAT PINDAH HALAMAN */
+        /* Slide yang tidak aktif: pause SEMUA animasi continuous-nya */
+        /* agar GPU hanya kerja untuk 1 halaman aktif. */
+        /* ============================================================== */
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .ken-burns,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .ken-burns-alt,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-float,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-float-delayed,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-float-alt,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-breathe,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-glow,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .live-spin-slow,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .animate-swipe-hint,
+        .main-swiper .swiper-slide:not(.swiper-slide-active) .shimmer-infinite::after {
+            animation-play-state: paused !important;
+        }
+        /* Paksa komposit GPU yang stabil selama transisi */
+        .main-swiper .swiper-slide {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+        .main-swiper .swiper-slide .absolute.inset-0.z-0 {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: auto;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ken-burns, .ken-burns-alt, .live-float, .live-float-delayed,
+            .live-float-alt, .live-breathe, .live-glow, .live-spin-slow,
+            .shimmer-infinite::after { animation: none !important; }
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-gold-300 selection:text-stone-900 bg-stone-950">
@@ -479,7 +595,7 @@
     <div id="cover-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950 text-white overflow-hidden">
         <!-- Bright photo background with Ken Burns -->
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop" 
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
                  alt="Romeo & Juliet" 
                  class="w-full h-full object-cover opacity-85 ken-burns">
             <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/30 to-stone-950/60"></div>
@@ -536,7 +652,7 @@
             <div class="swiper-slide main-slide text-white anim-active" data-slide-index="0">
                 <!-- PHOTO BACKGROUND 1 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Sunset Background" 
                          class="w-full h-full object-cover opacity-85 sm:opacity-90 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-stone-950/50"></div>
@@ -589,7 +705,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="1">
                 <!-- PHOTO BACKGROUND 2 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Rings Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -654,7 +770,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="2">
                 <!-- PHOTO BACKGROUND 3 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1200&auto=format&fit=crop" 
                          alt="Bride and Groom Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -720,7 +836,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="3">
                 <!-- PHOTO BACKGROUND 4 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Venue Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -820,7 +936,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="4">
                 <!-- PHOTO BACKGROUND 5 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=1200&auto=format&fit=crop" 
                          alt="Romantic Lights Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -848,7 +964,7 @@
                             
                             <!-- Slide 1 -->
                             <div class="swiper-slide relative group cursor-pointer gallery-item shimmer-infinite"
-                                 data-src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop"
+                                 data-src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Senja & Janji Setia"
                                  data-desc="Di bawah langit jingga, kami menyatukan dua hati.">
                                 <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
@@ -861,7 +977,7 @@
 
                             <!-- Slide 2 -->
                             <div class="swiper-slide relative group cursor-pointer gallery-item shimmer-infinite"
-                                 data-src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop"
+                                 data-src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Simbol Keabadian"
                                  data-desc="Cincin suci tanda ketulusan abadi.">
                                 <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000&auto=format&fit=crop" 
@@ -887,7 +1003,7 @@
 
                             <!-- Slide 4 -->
                             <div class="swiper-slide relative group cursor-pointer gallery-item shimmer-infinite"
-                                 data-src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop"
+                                 data-src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Bunga Kasih"
                                  data-desc="Mekar indah menyambut hari bahagia kita.">
                                 <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1000&auto=format&fit=crop" 
@@ -900,7 +1016,7 @@
 
                             <!-- Slide 5 -->
                             <div class="swiper-slide relative group cursor-pointer gallery-item shimmer-infinite"
-                                 data-src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070&auto=format&fit=crop"
+                                 data-src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Melangkah Berdua"
                                  data-desc="Bergandengan tangan menyongsong masa depan.">
                                 <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1000&auto=format&fit=crop" 
@@ -926,7 +1042,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="5">
                 <!-- PHOTO BACKGROUND 6 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop" 
                          alt="Love Journey Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -980,7 +1096,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="6">
                 <!-- PHOTO BACKGROUND 7 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop" 
                          alt="Gifts and Bouquets Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -1057,7 +1173,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="7">
                 <!-- PHOTO BACKGROUND 8 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop" 
+                    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Celebration Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -1449,12 +1565,15 @@
             });
         };
 
+        const isMobileSwiper = window.matchMedia('(max-width: 640px)').matches;
+
         const mainSwiper = new Swiper('.main-swiper', {
             direction: 'vertical',
-            speed: 850,
-            parallax: true,
-            effect: 'creative',
-            creativeEffect: {
+            // HP: transisi polos = jauh lebih mulus daripada creative+parallax
+            speed: isMobileSwiper ? 450 : 700,
+            parallax: isMobileSwiper ? false : true,
+            effect: isMobileSwiper ? 'slide' : 'creative',
+            creativeEffect: isMobileSwiper ? undefined : {
                 prev: {
                     translate: [0, '-100%', -300],
                     scale: 0.9,
@@ -1472,15 +1591,58 @@
             keyboard: {
                 enabled: true,
             },
-            touchRatio: 1.1,
+            touchRatio: 1,
             touchReleaseOnEdges: true,
-            resistanceRatio: 0.6,
+            resistanceRatio: 0.55,
+            touchStartPreventDefault: false,
+            passiveListeners: true,
+            // Kurangi render bayangan: hanya 1 slide tetangga yang dirender
+            watchSlidesProgress: !isMobileSwiper,
+            preloadImages: false,
             on: {
                 slideChangeTransitionStart: function () {
                     updateActiveNav(this.activeIndex);
                     triggerSlideEntranceAnimations(this.activeIndex);
+                    //Reset scroll isi ke atas setiap pindah halaman
+                    const prev = this.slides && this.slides[this.previousIndex];
+                    if (prev) prev.scrollTop = 0;
                 }
             }
+        });
+
+        // -------------------------------------------------------------
+        // 4d. SCROLL HALUS iOS: biarkan geser dalam slide dulu,
+        // pindah halaman hanya saat sudah mentok atas/bawah.
+        // Ini yang bikin scroll sebelumnya terasa "berat" di iPhone.
+        // -------------------------------------------------------------
+        document.querySelectorAll('.main-slide').forEach((slide) => {
+            slide.addEventListener('touchmove', (e) => {
+                const canScroll = slide.scrollHeight > slide.clientHeight + 2;
+                if (!canScroll) return; // konten muat, biarkan Swiper pindah halaman
+                const atTop = slide.scrollTop <= 1;
+                const atBottom = slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 2;
+                if (!atTop && !atBottom) {
+                    e.stopPropagation(); // scroll isi, jangan pindah slide
+                } else {
+                    // Di ujung: izinkan Swiper ambil alih hanya jika swipe menjauhi isi
+                    const touch = e.touches && e.touches[0];
+                    if (!touch) return;
+                    const lastY = slide._lastTouchY;
+                    slide._lastTouchY = touch.clientY;
+                    if (lastY === undefined) return;
+                    const goingUp = touch.clientY < lastY; // swipe ke atas = isi ke bawah
+                    if ((atTop && !goingUp) || (atBottom && goingUp)) {
+                        return; // mentok + swipe keluar -> Swiper boleh jalan
+                    }
+                    e.stopPropagation();
+                }
+            }, { passive: true });
+            slide.addEventListener('touchstart', (e) => {
+                const touch = e.touches && e.touches[0];
+                slide._lastTouchY = touch ? touch.clientY : undefined;
+            }, { passive: true });
+            // Reset posisi scroll tiap masuk slide baru agar tidak mulai di tengah
+            // (ditangani juga oleh Swiper, tapi ini pengaman ringan)
         });
 
         // Navigation dock clicks
@@ -1515,13 +1677,13 @@
                 disableOnInteraction: false,
                 pauseOnMouseEnter: false
             },
-            speed: 850,
+            speed: isMobileSwiper ? 500 : 850,
             coverflowEffect: {
-                rotate: 20,
+                rotate: isMobileSwiper ? 10 : 20,
                 stretch: 0,
-                depth: 140,
+                depth: isMobileSwiper ? 60 : 140,
                 modifier: 1,
-                slideShadows: true,
+                slideShadows: isMobileSwiper ? false : true,
             },
             pagination: {
                 el: '.gallery-swiper-pagination',
@@ -1692,11 +1854,13 @@
         }
 
         if (canvas) {
-            for (let i = 0; i < 22; i++) petals.push(new Petal());
+            const isSmallScreen = window.innerWidth < 640;
+            const petalCount = isSmallScreen ? 10 : 22;
+            for (let i = 0; i < petalCount; i++) petals.push(new Petal());
             function animatePetals() {
                 if (ctx && canvas) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    if (petalsEnabled) {
+                    if (petalsEnabled && !document.hidden) {
                         petals.forEach(petal => {
                             petal.update();
                             petal.draw();
