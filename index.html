@@ -488,6 +488,93 @@
             .live-float-alt, .live-breathe, .live-glow, .live-spin-slow,
             .shimmer-infinite::after { animation: none !important; }
         }
+
+        /* ============================================================== */
+        /* RESPONSIVE GLOBAL: SEMUA HP / TABLET / LAPTOP / PC */
+        /* Prinsip: konten tidak boleh kepotong di device apapun. */
+        /* ============================================================== */
+        img { max-width: 100%; height: auto; }
+        .main-slide img.object-cover { height: 100%; }
+
+        /* Anti-potong universal: semua teks boleh wrap, semua grid boleh susut */
+        .main-slide, .main-slide * { min-width: 0; }
+        .main-slide { overflow-x: clip; }
+        h1, h2, h3, h4, p, span, a, button {
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        .glass-panel { max-width: 100%; }
+        .grid { min-width: 0; max-width: 100%; }
+
+        /* Judul hero fluid: 320px sampai 4K tetap proporsional, boleh 2 baris */
+        .fluid-hero { font-size: clamp(2.2rem, 10vw + 0.5rem, 8rem); line-height: 1.08; overflow-wrap: break-word; text-wrap: balance; }
+        .fluid-h2 { font-size: clamp(1.5rem, 5vw + 0.8rem, 3rem); line-height: 1.18; overflow-wrap: break-word; text-wrap: balance; }
+
+        /* HP umum (semua lebar < 480px, bukan 1 device): padding ramping */
+        @media (max-width: 480px) {
+            .main-slide { padding-left: 0.75rem; padding-right: 0.75rem; }
+            /* Tracking super-lebar (0.35–0.45em) bikin teks overflow di 320–393px */
+            [class*="tracking-"] { letter-spacing: 0.18em !important; }
+            .main-slide .glass-panel { padding-left: 1rem; padding-right: 1rem; }
+            .main-slide[data-slide-index="2"] .photo-card-tilt .relative.w-40 { width: 7rem; height: 9.5rem; }
+            .gallery-swiper .swiper-slide { width: min(62vw, 230px); height: min(88vw, 320px); }
+            /* Countdown muat di 320px: angka + label mengecil otomatis */
+            .main-slide[data-slide-index="3"] .grid.grid-cols-4 { gap: 0.4rem; }
+            .main-slide[data-slide-index="3"] .grid.grid-cols-4 > div { padding: 0.6rem 0.25rem; }
+            .main-slide[data-slide-index="3"] .grid.grid-cols-4 span:first-child { font-size: 1.35rem; }
+            .stagger-item { transform: translateY(22px) scale(0.96); }
+        }
+
+        /* Cover modal harus bisa scroll di HP pendek / landscape */
+        #cover-modal { overflow-y: auto; padding: 1rem; }
+        #cover-modal .glass-panel { max-height: calc(100dvh - 2rem); overflow-y: auto; }
+
+        /* Dock navigasi: geser horizontal yang rapi di semua lebar */
+        nav.fixed.bottom-4 {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        nav.fixed.bottom-4::-webkit-scrollbar { display: none; }
+        .nav-dock-btn { flex-shrink: 0; white-space: nowrap; }
+
+        /* Countdown: cegah gepeng di 320px */
+        .main-slide[data-slide-index="3"] .grid.grid-cols-4 > div { min-width: 0; }
+        .main-slide[data-slide-index="3"] .grid.grid-cols-4 span:first-child { font-variant-numeric: tabular-nums; }
+
+        /* Tablet portrait: beri napas lebih lega */
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .main-slide { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .gallery-swiper .swiper-slide { width: 250px; height: 350px; }
+        }
+        /* Laptop / PC: batasi lebar + tinggikan agar tidak terlalu melebar */
+        @media (min-width: 1025px) {
+            .main-slide > .relative.z-10 { max-width: 72rem; }
+            .gallery-swiper .swiper-slide { width: 300px; height: 420px; }
+        }
+        /* Landscape HP (tinggi < 500px): rampingkan semuanya */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-slide { padding-top: 64px; padding-bottom: 86px; }
+            .fluid-hero { font-size: clamp(2rem, 8vw, 3.5rem); }
+            .main-slide[data-slide-index="2"] .photo-card-tilt .relative.w-40 { width: 6rem; height: 8rem; }
+            .gallery-swiper .swiper-slide { width: 180px; height: 250px; }
+            #cover-modal .glass-panel { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+        }
+        /* Failsafe: jika JS/Swiper gagal, konten tetap terlihat */
+        .no-swiper .stagger-item,
+        .no-swiper .word-split .word,
+        .no-swiper .couple-word .word,
+        .no-swiper .acara-word .word { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
+        .no-swiper .main-swiper { position: static; height: auto; }
+        .no-swiper .main-slide { height: auto; min-height: 100svh; overflow: visible; }
+        /* Reveal-all: saat user scroll/sentuh, tampilkan semua yang pending */
+        .reveal-all .stagger-item,
+        .reveal-all .word-split .word,
+        .reveal-all .couple-word .word,
+        .reveal-all .acara-word .word {
+            opacity: 1 !important; transform: none !important; filter: none !important;
+            animation: none !important;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-gold-300 selection:text-stone-900 bg-stone-950">
@@ -595,7 +682,7 @@
     <div id="cover-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950 text-white overflow-hidden">
         <!-- Bright photo background with Ken Burns -->
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
+            <img loading="eager" fetchpriority="high" decoding="async" src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
                  alt="Romeo & Juliet" 
                  class="w-full h-full object-cover opacity-85 ken-burns">
             <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/30 to-stone-950/60"></div>
@@ -614,7 +701,7 @@
                 Undangan Pernikahan
             </p>
             
-            <h1 class="text-5xl md:text-6xl font-serif text-white mb-2 leading-tight text-shadow-hero">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-2 leading-tight text-shadow-hero">
                 Romeo <span class="text-gold-400 italic font-light">&</span> Juliet
             </h1>
             
@@ -652,7 +739,7 @@
             <div class="swiper-slide main-slide text-white anim-active" data-slide-index="0">
                 <!-- PHOTO BACKGROUND 1 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Sunset Background" 
                          class="w-full h-full object-cover opacity-85 sm:opacity-90 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-stone-950/50"></div>
@@ -670,7 +757,7 @@
                     </p>
                     
                     <!-- Baris 3: Judul Utama "Romeo & Juliet" (Muncul Ketiga) -->
-                    <h1 class="stagger-item seq-3 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-serif mb-4 leading-tight text-shadow-hero">
+                    <h1 class="stagger-item seq-3 fluid-hero font-serif mb-4 text-shadow-hero">
                         Romeo <span class="text-gold-400 italic font-light">&</span> Juliet
                     </h1>
                     
@@ -705,7 +792,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="1">
                 <!-- PHOTO BACKGROUND 2 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Rings Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -727,7 +814,7 @@
                         <div class="stagger-item seq-2 relative w-36 h-36 sm:w-44 sm:h-44 mx-auto mb-6">
                             <div class="absolute inset-0 rounded-full border-2 border-dashed border-gold-400/60 live-spin-slow"></div>
                             <div class="w-32 h-32 sm:w-40 sm:h-40 m-2 rounded-full overflow-hidden p-1 bg-gradient-to-tr from-gold-600 via-gold-300 to-gold-600 shadow-2xl live-breathe shimmer-infinite">
-                                <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=800&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=800&auto=format&fit=crop" 
                                      alt="Couple Intimate" 
                                      class="w-full h-full object-cover rounded-full">
                             </div>
@@ -770,7 +857,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="2">
                 <!-- PHOTO BACKGROUND 3 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=1200&auto=format&fit=crop" 
                          alt="Bride and Groom Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -784,13 +871,13 @@
                     </div>
                     
                     <!-- Baris 2: Judul "Kedua Mempelai" (Muncul Kedua) -->
-                    <h2 class="stagger-item seq-2 text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-6 text-shadow-hero">Kedua Mempelai</h2>
+                    <h2 class="stagger-item seq-2 fluid-h2 font-serif text-white mb-6 text-shadow-hero">Kedua Mempelai</h2>
 
                     <div class="grid md:grid-cols-2 gap-6 sm:gap-8 items-center max-w-4xl mx-auto">
                         <!-- Baris 3: KARTU MEMPELAI PRIA (Masuk pelan dari kiri, teks per kata sinkron) -->
                         <div class="stagger-item seq-couple-left photo-card-tilt group glass-panel p-6 sm:p-8 rounded-[2rem] shadow-2xl live-float">
                             <div class="relative w-40 h-52 sm:w-48 sm:h-60 mx-auto mb-4 rounded-t-[8rem] rounded-b-2xl overflow-hidden gold-border-gradient shadow-2xl shimmer-infinite">
-                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Romeo Montague" 
                                      class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
                             </div>
@@ -810,7 +897,7 @@
                         <!-- Baris 4: KARTU MEMPELAI WANITA (Masuk pelan dari kanan, teks per kata sinkron) -->
                         <div class="stagger-item seq-couple-right photo-card-tilt group glass-panel p-6 sm:p-8 rounded-[2rem] shadow-2xl live-float-delayed">
                             <div class="relative w-40 h-52 sm:w-48 sm:h-60 mx-auto mb-4 rounded-t-[8rem] rounded-b-2xl overflow-hidden gold-border-gradient shadow-2xl shimmer-infinite">
-                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Juliet Capulet" 
                                      class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110">
                             </div>
@@ -836,7 +923,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="3">
                 <!-- PHOTO BACKGROUND 4 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Venue Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -850,7 +937,7 @@
                     </div>
                     
                     <!-- Baris 2: Judul "Waktu & Tempat" (Muncul Kedua) -->
-                    <h2 class="stagger-item seq-2 text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-5 text-shadow-hero">Waktu & Tempat</h2>
+                    <h2 class="stagger-item seq-2 fluid-h2 font-serif text-white mb-5 text-shadow-hero">Waktu & Tempat</h2>
 
                     <!-- Baris 3: Kotak Countdown (Muncul Ketiga) -->
                     <div class="stagger-item seq-3 grid grid-cols-4 gap-2 sm:gap-4 max-w-lg mx-auto mb-6">
@@ -936,7 +1023,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="4">
                 <!-- PHOTO BACKGROUND 5 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=1200&auto=format&fit=crop" 
                          alt="Romantic Lights Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -950,7 +1037,7 @@
                     </div>
                     
                     <!-- Baris 2: Judul Utama (Delay 2) -->
-                    <h2 class="stagger-item seq-gal-2 text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2 text-shadow-hero">Galeri Momen Kasih</h2>
+                    <h2 class="stagger-item seq-gal-2 fluid-h2 font-serif text-white mb-2 text-shadow-hero">Galeri Momen Kasih</h2>
 
                     <!-- Baris 3: Badge Status Bergeser Otomatis (Delay 3) -->
                     <div class="stagger-item seq-gal-3 inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full bg-gold-500/20 border border-gold-400/40 text-[11px] text-gold-200 font-sans">
@@ -967,7 +1054,7 @@
                                  data-src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Senja & Janji Setia"
                                  data-desc="Di bawah langit jingga, kami menyatukan dua hati.">
-                                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" 
                                      alt="Photo 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108">
                                 <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-transparent to-transparent flex flex-col justify-end p-5 text-left">
                                     <span class="text-[10px] text-gold-300 font-cinzel uppercase tracking-widest font-bold">Pre-Wedding #1</span>
@@ -980,7 +1067,7 @@
                                  data-src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Simbol Keabadian"
                                  data-desc="Cincin suci tanda ketulusan abadi.">
-                                <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Photo 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108">
                                 <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-transparent to-transparent flex flex-col justify-end p-5 text-left">
                                     <span class="text-[10px] text-gold-300 font-cinzel uppercase tracking-widest font-bold">Pre-Wedding #2</span>
@@ -993,7 +1080,7 @@
                                  data-src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1974&auto=format&fit=crop"
                                  data-title="Tatapan Kasih"
                                  data-desc="Di matamu kutemukan rumah terbaik.">
-                                <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Photo 3" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108">
                                 <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-transparent to-transparent flex flex-col justify-end p-5 text-left">
                                     <span class="text-[10px] text-gold-300 font-cinzel uppercase tracking-widest font-bold">Pre-Wedding #3</span>
@@ -1006,7 +1093,7 @@
                                  data-src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Bunga Kasih"
                                  data-desc="Mekar indah menyambut hari bahagia kita.">
-                                <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Photo 4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108">
                                 <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-transparent to-transparent flex flex-col justify-end p-5 text-left">
                                     <span class="text-[10px] text-gold-300 font-cinzel uppercase tracking-widest font-bold">Pre-Wedding #4</span>
@@ -1019,7 +1106,7 @@
                                  data-src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop"
                                  data-title="Melangkah Berdua"
                                  data-desc="Bergandengan tangan menyongsong masa depan.">
-                                <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1000&auto=format&fit=crop" 
+                                <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1000&auto=format&fit=crop" 
                                      alt="Photo 5" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108">
                                 <div class="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-transparent to-transparent flex flex-col justify-end p-5 text-left">
                                     <span class="text-[10px] text-gold-300 font-cinzel uppercase tracking-widest font-bold">Pre-Wedding #5</span>
@@ -1042,7 +1129,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="5">
                 <!-- PHOTO BACKGROUND 6 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?q=80&w=1200&auto=format&fit=crop" 
                          alt="Love Journey Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -1056,7 +1143,7 @@
                     </div>
                     
                     <!-- Baris 2: Judul Utama (Muncul Kedua) -->
-                    <h2 class="stagger-item seq-2 text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-8 text-shadow-hero">Kisah Cinta Kami</h2>
+                    <h2 class="stagger-item seq-2 fluid-h2 font-serif text-white mb-8 text-shadow-hero">Kisah Cinta Kami</h2>
 
                     <!-- Timeline Cards: Muncul Bergantian Tahun Demi Tahun -->
                     <div class="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto text-left">
@@ -1096,7 +1183,7 @@
             <div class="swiper-slide main-slide text-white" data-slide-index="6">
                 <!-- PHOTO BACKGROUND 7 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=1200&auto=format&fit=crop" 
                          alt="Gifts and Bouquets Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -1110,7 +1197,7 @@
                     </div>
                     
                     <!-- Baris 2: Judul Utama (Muncul Kedua) -->
-                    <h2 class="stagger-item seq-2 text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2 text-shadow-hero">Kado & Amplop Digital</h2>
+                    <h2 class="stagger-item seq-2 fluid-h2 font-serif text-white mb-2 text-shadow-hero">Kado & Amplop Digital</h2>
 
                     <!-- Baris 3: Paragraf Pengantar (Muncul Ketiga) -->
                     <p class="stagger-item seq-3 text-stone-200 text-xs sm:text-sm max-w-md mx-auto mb-6 text-shadow-sub">
@@ -1173,7 +1260,7 @@
             <div class="swiper-slide main-slide text-stone-100" data-slide-index="7">
                 <!-- PHOTO BACKGROUND 8 -->
                 <div class="absolute inset-0 z-0 overflow-hidden" data-swiper-parallax="-20%">
-                    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200&auto=format&fit=crop" 
+                    <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=1200&auto=format&fit=crop" 
                          alt="Wedding Celebration Background" 
                          class="w-full h-full object-cover opacity-80 sm:opacity-85 ken-burns-alt">
                     <div class="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/25 to-stone-950/65"></div>
@@ -1187,7 +1274,7 @@
                     </div>
                     
                     <!-- Baris 2: Judul Utama (Muncul Kedua) -->
-                    <h2 class="stagger-item seq-2 text-3xl sm:text-4xl font-serif text-white text-center mb-4 text-shadow-hero">RSVP & Buku Tamu</h2>
+                    <h2 class="stagger-item seq-2 fluid-h2 font-serif text-white text-center mb-4 text-shadow-hero">RSVP & Buku Tamu</h2>
 
                     <!-- Baris 3: Tab Switcher (Muncul Ketiga) -->
                     <div class="stagger-item seq-3 flex items-center justify-center gap-3 mb-5">
@@ -1408,12 +1495,14 @@
         // 4a. WORD-BY-WORD SPLITTER UNTUK HALAMAN KUTIPAN
         // Pecah setiap <p class="word-split"> menjadi <span class="word">
         // dengan delay berurutan, jadi kalimat muncul per kata.
+        // Delay adaptif: HP lebih cepat agar tidak terasa "tidak memuat".
         // -------------------------------------------------------------
+        const isSmallAnim = window.matchMedia('(max-width: 640px)').matches;
         (() => {
             const quoteParagraphs = document.querySelectorAll('.word-split');
             let wordIndex = 0;
             const baseDelay = 0.85; // mulai setelah ornamen + foto (seq-1 & seq-2)
-            const perWordDelay = 0.13; // jeda antar kata
+            const perWordDelay = isSmallAnim ? 0.09 : 0.13; // HP lebih cepat
             quoteParagraphs.forEach((p) => {
                 const text = p.textContent.trim().split(/\s+/);
                 p.innerHTML = '';
@@ -1428,6 +1517,12 @@
                     wordIndex++;
                 });
             });
+            // Rujukan & tombol mengikuti akhir kata terakhir (tidak fixed)
+            const endT = baseDelay + wordIndex * perWordDelay;
+            const qRef = document.querySelector('.seq-quote-ref');
+            const qNext = document.querySelector('.seq-quote-next');
+            if (qRef) qRef.style.animationDelay = (endT + 0.35).toFixed(2) + 's';
+            if (qNext) qNext.style.animationDelay = (endT + 0.8).toFixed(2) + 's';
         })();
 
         // -------------------------------------------------------------
@@ -1467,9 +1562,9 @@
                 return words;
             };
 
-            const baseDelay = 1.6;   // mulai setelah card kiri/kanan masuk
-            const perWordDelay = 0.18; // jeda antar kata (lebih pelan)
-            const rowGap = 0.3;      // jeda antar baris (nama -> peran -> deskripsi)
+            const baseDelay = isSmallAnim ? 1.3 : 1.6;   // mulai setelah card kiri/kanan masuk
+            const perWordDelay = isSmallAnim ? 0.12 : 0.18; // HP lebih cepat
+            const rowGap = isSmallAnim ? 0.2 : 0.3;      // jeda antar baris (nama -> peran -> deskripsi)
             let rowStart = baseDelay;
 
             ['0', '1', '2'].forEach((row) => {
@@ -1501,8 +1596,8 @@
         // -------------------------------------------------------------
         (() => {
             const els = Array.from(document.querySelectorAll('.acara-word'));
-            const baseDelay = 1.7;    // mulai setelah card akad masuk (0.9s + gerak)
-            const perWordDelay = 0.1; // jeda antar kata
+            const baseDelay = isSmallAnim ? 1.4 : 1.7;    // mulai setelah card akad masuk
+            const perWordDelay = isSmallAnim ? 0.07 : 0.1; // HP lebih cepat
             let t = baseDelay;
             const akadEls = els.slice(0, 7);
             const resepsiEls = els.slice(7);
@@ -1555,6 +1650,7 @@
             if (!mainSwiper || !mainSwiper.slides) return;
             mainSwiper.slides.forEach((slide) => {
                 slide.classList.remove('anim-active');
+                slide.classList.remove('reveal-all');
             });
             requestAnimationFrame(() => {
                 const activeSlide = mainSwiper.slides[index];
@@ -1567,7 +1663,13 @@
 
         const isMobileSwiper = window.matchMedia('(max-width: 640px)').matches;
 
-        const mainSwiper = new Swiper('.main-swiper', {
+        // Failsafe: kalau CDN Swiper gagal dimuat, tampilkan semua konten statis
+        // agar tidak ada halaman yang kosong / tidak memuat di device manapun.
+        let mainSwiper = null;
+        if (typeof Swiper === 'undefined') {
+            document.body.classList.add('no-swiper');
+        } else {
+        const mainSwiperInit = new Swiper('.main-swiper', {
             direction: 'vertical',
             // HP: transisi polos = jauh lebih mulus daripada creative+parallax
             speed: isMobileSwiper ? 450 : 700,
@@ -1609,6 +1711,8 @@
                 }
             }
         });
+        mainSwiper = mainSwiperInit;
+        } // end Swiper guard
 
         // -------------------------------------------------------------
         // 4d. SCROLL HALUS iOS: biarkan geser dalam slide dulu,
@@ -1641,31 +1745,47 @@
                 const touch = e.touches && e.touches[0];
                 slide._lastTouchY = touch ? touch.clientY : undefined;
             }, { passive: true });
-            // Reset posisi scroll tiap masuk slide baru agar tidak mulai di tengah
-            // (ditangani juga oleh Swiper, tapi ini pengaman ringan)
+            // Jika user scroll isi: langsung tampilkan semua yang masih pending.
+            // Ini yang bikin di HP terasa "terpotong" — konten bawah masih
+            // opacity:0 karena animasi per kata belum selesai saat user scroll.
+            slide.addEventListener('scroll', () => {
+                if (slide.classList.contains('anim-active') && !slide.classList.contains('reveal-all')) {
+                    if (slide.scrollTop > 24) slide.classList.add('reveal-all');
+                }
+            }, { passive: true });
+            slide.addEventListener('wheel', () => {
+                if (slide.classList.contains('anim-active') && !slide.classList.contains('reveal-all')) {
+                    slide.classList.add('reveal-all');
+                }
+            }, { passive: true });
         });
 
         // Navigation dock clicks
         dockBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetSlide = parseInt(btn.getAttribute('data-slide'));
-                mainSwiper.slideTo(targetSlide);
+                if (mainSwiper) { mainSwiper.slideTo(targetSlide); }
+                else {
+                    const fallback = document.querySelector('.main-slide[data-slide-index="' + targetSlide + '"]');
+                    if (fallback) fallback.scrollIntoView({ behavior: 'smooth' });
+                }
             });
         });
 
         // Prev & Next Slide Buttons
         const btnPrevSlide = document.getElementById('btn-prev-slide');
         const btnNextSlide = document.getElementById('btn-next-slide');
-        if (btnPrevSlide) btnPrevSlide.addEventListener('click', () => mainSwiper.slidePrev());
-        if (btnNextSlide) btnNextSlide.addEventListener('click', () => mainSwiper.slideNext());
+        if (btnPrevSlide) btnPrevSlide.addEventListener('click', () => { if (mainSwiper) mainSwiper.slidePrev(); });
+        if (btnNextSlide) btnNextSlide.addEventListener('click', () => { if (mainSwiper) mainSwiper.slideNext(); });
 
         document.querySelectorAll('.next-slide-trigger').forEach(trigger => {
-            trigger.addEventListener('click', () => mainSwiper.slideNext());
+            trigger.addEventListener('click', () => { if (mainSwiper) mainSwiper.slideNext(); });
         });
 
         // -------------------------------------------------------------
         // 5. HORIZONTAL GALLERY 3D SWIPER (BERPUTAR & TERSLIDE SENDIRI)
         // -------------------------------------------------------------
+        if (typeof Swiper !== 'undefined') {
         const gallerySwiper = new Swiper('.gallery-swiper', {
             effect: 'coverflow',
             grabCursor: true,
@@ -1690,6 +1810,7 @@
                 clickable: true,
             },
         });
+        }
 
         // -------------------------------------------------------------
         // 6. Lightbox Preview Modal
